@@ -121,7 +121,7 @@ names(mergedData) <- c("activitynumber", "activitylabel",
 
 ## From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject
 The second dataset is obtained by using the aggregate function, it is named agg.
-The results are written in a file called result_average-mean-std.txt, in the data folder.
+The results are written in a file called result_average-mean-std.txt, in the script folder.
 ```{r}
 ## From the data set in step 4, creates a second, independent tidy data set
 ## with the average of each variable for each activity and each subject

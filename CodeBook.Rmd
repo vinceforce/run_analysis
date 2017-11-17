@@ -17,7 +17,7 @@ The original measured data (in "Inertial Signals" folder) will not be used, for 
 After opening the X_train and X_test files with a text editor, we see that :
 
 - the format used is fixed width (width is 16, separator is empty string)
-- the number of lines in the trainig dataset is 7352
+- the number of lines in the training dataset is 7352
 - the number of lines in the test dataset is 2947
 
 We know that the number of columns is the number of features, 561
@@ -62,5 +62,28 @@ Merge will be performed using the plyr join function
 Column names have to be in lower case, without any special character (no caret, no space, an so on), and describe column content
 
 ## From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject
-The second dataset is obtained by using the aggregate function
+The second dataset is obtained by using the aggregate function.
 
+### Units
+The different columns of the final dataset are the following:
+
+- subjectid: integer, between 1 and 30, id of the subject
+- activitylabel: string with 6 different values (LAYING, SITTING, STANDING, WALKING, WALKING_DOWNSTAIRS, WALKING_UPSTAIRS), label of activity
+- bodyaccelerationmeanalongx: numeric, body acceleration mean along x, in standard gravity units 'g', normalized to [-1, 1]
+- bodyaccelerationmeanalongy: numeric, body acceleration mean along y, in standard gravity units 'g', normalized to [-1, 1]
+- bodyaccelerationmeanalongz: numeric, body acceleration mean along z, in standard gravity units 'g', normalized to [-1, 1]
+- bodyaccelerationstandarddeviationalongx: numeric, body acceleration standard deviation along x, in standard gravity units 'g', normalized to [-1, 1]
+- bodyaccelerationstandarddeviationalongy: numeric, body acceleration standard deviation along y, in standard gravity units 'g', normalized to [-1, 1]
+- bodyaccelerationstandarddeviationalongz: numeric, body acceleration standard deviation along z, in standard gravity units 'g', normalized to [-1, 1]
+- gravityaccelerationmeanalongx: gravity acceleration mean along x, in standard gravity units 'g', normalized to [-1, 1]
+- gravityaccelerationmeanalongy: gravity acceleration mean along y, in standard gravity units 'g', normalized to [-1, 1]
+- gravityaccelerationmeanalongz: gravity acceleration mean along z, in standard gravity units 'g', normalized to [-1, 1]
+- gravityaccelerationstandarddeviationalongx: numeric, gravity acceleration standard deviation along x, in standard gravity units 'g', normalized to [-1, 1]
+- gravityaccelerationstandarddeviationalongy: numeric, gravity acceleration standard deviation along y, in standard gravity units 'g', normalized to [-1, 1]
+- gravityaccelerationstandarddeviationalongz: numeric, gravity acceleration standard deviation along z, in standard gravity units 'g', normalized to [-1, 1]
+- bodyangularvelocitymeanalongx: angular velocity mean along x, in radians per second, normalized to [-1, 1]
+- bodyangularvelocitymeanalongy: angular velocity mean along y, in radians per second, normalized to [-1, 1]
+- bodyangularvelocitymeanalongz: angular velocity mean along z, in radians per second, normalized to [-1, 1]
+- bodyangularvelocitystandarddeviationalongx: numeric, angular velocity acceleration standard deviation along x, in radians per second, normalized to [-1, 1]
+- bodyangularvelocitystandarddeviationalongy: numeric, angular velocity acceleration standard deviation along y, in radians per second, normalized to [-1, 1]
+- bodyangularvelocitystandarddeviationalongz: numeric, angular velocity acceleration standard deviation along z, in radians per second, normalized to [-1, 1]

@@ -1,0 +1,149 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+# CodeBook - run analysis
+This document explains the choices made and the steps followed to perform the analysis.
+
+## Data
+The data provided is separated in several files (e.g. activites labels).
+The original measured data (in "Inertial Signals" folder) will not be used, for we will use the preprocessed data in X_train an X_test instead.
+
+After opening the X_train and X_test files with a text editor, we see that :
+
+- the format used is fixed width (width is 16, separator is empty string)
+- the number of lines in the trainig dataset is 7352
+- the number of lines in the test dataset is 2947
+
+We know that the number of columns is the number of features, 561
+
+We can guess that reading the data files may take some time...
+
+We must use read.fwf function, with appropriate parameters, providing values for:
+
+- width values (rep(16, 561))
+- separator (sep="")
+- number of rows to read (n=7352 or n=2947)
+- column names (col.names to be retrieved from features.txt)
+- column classes (rep("numeric", 561))
+- buffer size (buffersize = 100 was optimal for my configuration after some tests with system.time())
+Data units is standard gravity units 'g' for acc data (mean , std), radians / s for gyro data (mean, std).
+
+After opening the subject_train, subject_test, features and activity_labels files with a text editor, we see that :
+
+- the three first ones are one single column, the fourth uses a single space as separator
+We can use read.table function for these files.
+
+We define a function for calculating file pathes.
+```{r}
+fn <- function(fileName) {
+        paste(".", datadir, fileName, sep = "/")
+}
+```
+
+## Merge training dataset with test dataset
+Merge is performed through the rbind standard function.
+The resulting dataset has 10299 rows and 561 columns, and is named X.
+```{r}
+## Merges the training and the test sets to create one data set.
+datadir <- "UCI HAR Dataset"
+# Names of columns from features.txt
+fnF <- fn("features.txt")
+features_raw <- read.table(fnF, sep = " ", stringsAsFactors = FALSE)
+features <- features_raw[, 2]
+
+fnXtr <- fn("train/X_train.txt")
+X_train <- read.fwf(fnXtr, rep(16, 561), sep="", header = FALSE, n=7352, row.names = NULL,
+                   col.names = features, colClasses = rep("numeric", 561), buffersize = 100)
+fnXts<- fn("test/X_test.txt")
+X_test <- read.fwf(fnXts, rep(16, 561), sep="", header = FALSE, n=2947, row.names = NULL,
+                   col.names = features, colClasses = rep("numeric", 561), buffersize = 100)
+X <- rbind(X_train, X_test)
+```
+
+
+## Extract only the measurements on the mean and standard deviation for each measurement
+Measurements are total acceleration and body gyro acceleration.
+As far as body acceleration is calculated from gravity acceleration and total acceleration, columns to be considered must have their names :
+
+- being prefixed with "tBodyAcc", "tGravityAcc" or "tBodyGyro"
+- and containing ".mean." or ".std."
+
+The corresponding columns are selected via a regular expression. The resulting dataset is called X_mean_std
+```{r}
+## Extracts only the measurements on the mean and standard deviation for each measurement
+X_mean_std <- X[, grep("(.*)(tBodyAcc\\.|tGravityAcc\\.|tBodyGyro\\.)(mean|std)(.*)",
+                          names(X), value = TRUE)]
+```
+
+
+## Use descriptive activity names to name the activities in the data set
+Activity names are stored in the activity_labels.txt file.
+We have to load the dataset and merge it with X dataframe.
+Merge will be performed using the plyr join function.
+```{r}
+## Uses descriptive activity names to name the activities in the data set
+fnActLbl <- fn("activity_labels.txt")
+activityLabels <- read.table(fnActLbl, sep = " ", stringsAsFactors = FALSE,
+                             col.names = c("numAct", "libAct"))
+
+fnActivities_train <- fn("train/y_train.txt")
+activities_train <- read.table(fnActivities_train, stringsAsFactors = FALSE, col.names = c("numAct"))
+fnActivities_test <- fn("test/y_test.txt")
+activities_test <- read.table(fnActivities_test, stringsAsFactors = FALSE, col.names = c("numAct"))
+activities <- rbind(activities_train, activities_test)
+
+X_mean_std_actnum <- cbind(activities, X_mean_std)
+
+library(plyr)
+mergedData <- join(activityLabels, X_mean_std_actnum)
+```
+
+## Appropriately labels the data set with descriptive variable names
+Column names have to be in lower case, without any special character (no caret, no space, an so on), and describe column content
+```{r}
+## Appropriately labels the data set with descriptive variable names
+names(mergedData) <- c("activitynumber", "activitylabel",
+                       "bodyaccelerationmeanalongx", "bodyaccelerationmeanalongy", "bodyaccelerationmeanalongz",
+                       "bodyaccelerationstandarddeviationalongx", "bodyaccelerationstandarddeviationalongy",
+                       "bodyaccelerationstandarddeviationalongz",
+                       "gravityaccelerationmeanalongx", "gravityaccelerationmeanalongy", "gravityaccelerationmeanalongz",
+                       "gravityaccelerationstandarddeviationalongx", "gravityaccelerationstandarddeviationalongy",
+                       "gravityaccelerationstandarddeviationalongz",
+                       "bodyangularvelocitymeanalongx", "bodyangularvelocitymeanalongy",
+                       "bodyangularvelocitymeanalongz",
+                       "bodyangularvelocitystandarddeviationalongx", "bodyangularvelocitystandarddeviationalongy",
+                       "bodyangularvelocitystandarddeviationalongz")
+```
+
+
+## From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject
+The second dataset is obtained by using the aggregate function, it is named agg.
+The results are written in a file called result_average-mean-std.txt, in the data folder.
+```{r}
+## From the data set in step 4, creates a second, independent tidy data set
+## with the average of each variable for each activity and each subject
+fnSubjects_train <- fn("train/subject_train.txt")
+subjects_train <- read.table(fnSubjects_train, stringsAsFactors = FALSE,
+                             col.names = c("subjectid"), colClasses = c("integer"))
+fnSubjects_test <- fn("test/subject_test.txt")
+subjects_test <- read.table(fnSubjects_test, stringsAsFactors = FALSE,
+                            col.names = c("subjectid"), colClasses = c("integer"))
+subjects <- rbind(subjects_train, subjects_test)
+
+mm <- cbind(subjects, mergedData)
+
+library(reshape2)
+
+id_vars <- list(mm$subjectid, mm$activitylabel)
+
+agg <- aggregate.data.frame(mm[, 4:21], id_vars, mean, drop = TRUE)
+names(agg)[1:2] <- c("subjectid", "activitylabel")
+
+fnResult <- fn("../result_average-mean-std.txt")
+write.table(agg, fnResult, row.names = FALSE)
+```
+
+

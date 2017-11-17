@@ -1,0 +1,66 @@
+---
+title: "CodeBook"
+author: "Vince Force"
+date: "14 novembre 2017"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# CodeBook - run analysis
+This document explains the choices made and the steps followed to perform the analysis.
+
+## Data
+The data provided is separated in several files (e.g. activites labels).
+The original measured data (in "Inertial Signals" folder) will not be used, for we will use the preprocessed data in X_train an X_test instead.
+
+After opening the X_train and X_test files with a text editor, we see that :
+
+- the format used is fixed width (width is 16, separator is empty string)
+- the number of lines in the trainig dataset is 7352
+- the number of lines in the test dataset is 2947
+
+We know that the number of columns is the number of features, 561
+
+We can guess that reading the data files may take some time...
+
+We must use read.fwf function, with appropriate parameters, providing values for:
+
+- width values (rep(16, 561))
+- separator (sep="")
+- number of rows to read (n=7352 or n=2947)
+- column names (col.names to be retrieved from features.txt)
+- column classes (rep("numeric", 561))
+- buffer size (buffersize = 100 was optimal for my configuration after some tests with system.time())
+Data units is standard gravity units 'g' for acc data (mean , std), radians / s for gyro data (mean, std).
+
+After opening the subject_train, subject_test, features and activity_labels files with a text editor, we see that :
+
+- the three first ones are one single column, the fourth uses a single space as separator
+We can use read.table function for these files.
+
+## Merge training dataset with test dataset
+Merge is performed through the rbind standard function.
+The resulting dataset has 10299 rows and 561 columns, and is named X.
+
+
+## Extract only the measurements on the mean and standard deviation for each measurement
+Measurements are total acceleration and body gyro acceleration.
+As far as body acceleration is calculated from gravity acceleration and total acceleration, columns to be considered must have their names :
+
+- being prefixed with "tBodyAcc", "tGravityAcc" or "tBodyGyro"
+- and containing ".mean." or ".std."
+
+The corresponding columns are selected via a regular expression. The resulting dataset is called X_mean_std  
+
+## Use descriptive activity names to name the activities in the data set
+Activity names are stored in the activity_labels.txt file.
+We have to load the dataset and merge it with X dataframe.
+Merge will be performed using the plyr join function
+
+## Appropriately labels the data set with descriptive variable names
+Column names have to be in lower case, without any special character (no caret, no space, an so on), and describe column content
+
+## From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject
+The second dataset is obtained by using the aggregate function
+

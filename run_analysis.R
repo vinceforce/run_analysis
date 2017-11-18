@@ -69,5 +69,5 @@ id_vars <- list(mm$subjectid, mm$activitylabel)
 agg <- aggregate.data.frame(mm[, 4:21], id_vars, mean, drop = TRUE)
 names(agg)[1:2] <- c("subjectid", "activitylabel")
 
-fnResult <- fn("result_average-mean-std.txt")
+fnResult <- fn("../result_average-mean-std.txt")
 write.table(agg, fnResult, row.names = FALSE)

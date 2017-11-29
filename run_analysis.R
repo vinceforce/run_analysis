@@ -35,10 +35,11 @@ activities <- rbind(activities_train, activities_test)
 X_mean_std_actnum <- cbind(activities, X_mean_std)
 
 library(plyr)
-mergedData <- join(activityLabels, X_mean_std_actnum)
+# mergedData <- join(activityLabels, X_mean_std_actnum)
+mergedData <- join(X_mean_std_actnum, activityLabels)
 
 ## Appropriately labels the data set with descriptive variable names
-names(mergedData) <- c("activitynumber", "activitylabel",
+names(mergedData) <- c("activitynumber",
                        "bodyaccelerationmeanalongx", "bodyaccelerationmeanalongy", "bodyaccelerationmeanalongz",
                        "bodyaccelerationstandarddeviationalongx", "bodyaccelerationstandarddeviationalongy",
                        "bodyaccelerationstandarddeviationalongz",
@@ -48,8 +49,8 @@ names(mergedData) <- c("activitynumber", "activitylabel",
                        "bodyangularvelocitymeanalongx", "bodyangularvelocitymeanalongy",
                        "bodyangularvelocitymeanalongz",
                        "bodyangularvelocitystandarddeviationalongx", "bodyangularvelocitystandarddeviationalongy",
-                       "bodyangularvelocitystandarddeviationalongz")
-
+                       "bodyangularvelocitystandarddeviationalongz",
+                       "activitylabel")
 ## From the data set in step 4, creates a second, independent tidy data set
 ## with the average of each variable for each activity and each subject
 fnSubjects_train <- fn("train/subject_train.txt")
@@ -64,10 +65,22 @@ mm <- cbind(subjects, mergedData)
 
 library(reshape2)
 
+
+# mmm <- melt(mm, id=c("subjectid","activitylabel"))
+# agg2 <- dcast(mmm, subjectid+activitylabel~variable, mean)
+# fnResult <- fn("../result_average-mean-std_2.txt")
+# write.table(agg2, fnResult, row.names = FALSE)
+# 
+# agg3 <- mm %>%
+#         group_by(subjectid, activitylabel) %>%
+#         summarize_all(mean)
+# write.table(agg3, fnResult, row.names = FALSE)"activitynumber"
+
+
 id_vars <- list(mm$subjectid, mm$activitylabel)
 
-agg <- aggregate.data.frame(mm[, 4:21], id_vars, mean, drop = TRUE)
+agg <- aggregate.data.frame(mm[, 3:20], id_vars, mean, drop = TRUE)
 names(agg)[1:2] <- c("subjectid", "activitylabel")
 
-fnResult <- fn("result_average-mean-std.txt")
+fnResult <- fn("../result_average-mean-std.txt")
 write.table(agg, fnResult, row.names = FALSE)

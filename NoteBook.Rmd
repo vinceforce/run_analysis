@@ -98,14 +98,14 @@ activities <- rbind(activities_train, activities_test)
 X_mean_std_actnum <- cbind(activities, X_mean_std)
 
 library(plyr)
-mergedData <- join(activityLabels, X_mean_std_actnum)
+mergedData <- join(X_mean_std_actnum, activityLabels)
 ```
 
 ## Appropriately labels the data set with descriptive variable names
 Column names have to be in lower case, without any special character (no caret, no space, an so on), and describe column content
 ```{r}
 ## Appropriately labels the data set with descriptive variable names
-names(mergedData) <- c("activitynumber", "activitylabel",
+names(mergedData) <- c("activitynumber",
                        "bodyaccelerationmeanalongx", "bodyaccelerationmeanalongy", "bodyaccelerationmeanalongz",
                        "bodyaccelerationstandarddeviationalongx", "bodyaccelerationstandarddeviationalongy",
                        "bodyaccelerationstandarddeviationalongz",
@@ -115,7 +115,8 @@ names(mergedData) <- c("activitynumber", "activitylabel",
                        "bodyangularvelocitymeanalongx", "bodyangularvelocitymeanalongy",
                        "bodyangularvelocitymeanalongz",
                        "bodyangularvelocitystandarddeviationalongx", "bodyangularvelocitystandarddeviationalongy",
-                       "bodyangularvelocitystandarddeviationalongz")
+                       "bodyangularvelocitystandarddeviationalongz",
+                       "activitylabel")
 ```
 
 
